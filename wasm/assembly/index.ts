@@ -16,3 +16,8 @@ export const Int32Array_ID = idof<Int32Array>();
 export function returnArr(arr: Int32Array): Int32Array {
   return arr;
 }
+
+export function getClearArray(canvasSize: i32): Int32Array {
+  const length = canvasSize * canvasSize;
+  return new Int32Array(length);
+}

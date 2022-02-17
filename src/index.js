@@ -6,7 +6,7 @@ import './style.css';
 loader.instantiate(fetch('./build/optimized.wasm'), {}).then(({ exports }) => {
   // Функции Wasm
 
-  const { sum, Int32Array_ID, returnArr } = exports;
+  const { sum, Int32Array_ID, returnArr, getClearArray } = exports;
   const { __newArray, __getArray, __getArrayView, __pin, __unpin } = exports;
 
   const array = __pin(__newArray(Int32Array_ID, [1, 2, 3]));
@@ -23,9 +23,9 @@ loader.instantiate(fetch('./build/optimized.wasm'), {}).then(({ exports }) => {
   let isMouseDown = false;
   let canvas = document.createElement('canvas');
   let ctx = canvas.getContext('2d');
-  const currentSize = 2;
   let currentColor = '#000000';
-  let currentBg = 'white';
+  const currentBg = 'white';
+  const currentSize = 2;
   const canvasSize = 80; // поле 80x80
 
   // Создать поле
@@ -44,7 +44,7 @@ loader.instantiate(fetch('./build/optimized.wasm'), {}).then(({ exports }) => {
 
   // Преобразование в вектор
   const toImage = () => {
-    const input = Array(canvasSize * canvasSize).fill(0);
+    const input = __getArray(__pin(getClearArray(canvasSize)));
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
 
     function getPixel(imgData, index) {
@@ -67,6 +67,8 @@ loader.instantiate(fetch('./build/optimized.wasm'), {}).then(({ exports }) => {
     }
 
     console.log(input);
+
+    __unpin(input);
   };
 
   document.getElementById('train').addEventListener('click', toImage);
