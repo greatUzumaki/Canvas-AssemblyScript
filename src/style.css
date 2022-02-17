@@ -1,0 +1,41 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: darkgray;
+}
+
+.main {
+  display: flex;
+  align-items: center;
+  flex-direction: column-reverse;
+  gap: 20px;
+}
+
+canvas {
+  margin-top: 20px;
+  cursor: crosshair;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 260px;
+}
+
+.buttons button {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.cross_or_circle {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cross_or_circle button {
+  width: 120px;
+}
