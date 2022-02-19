@@ -3,10 +3,10 @@ import './style.css';
 
 // Подключение модуля Wasm
 
-loader.instantiate(fetch('./build/optimized.wasm'), {}).then(({ exports }) => {
+loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
 
-  const { sum, Int32Array_ID, returnArr, getClearArray } = exports;
+  const { sum, Int32Array_ID, returnArr, getClearArray, toImage } = exports;
   const { __newArray, __getArray, __getArrayView, __pin, __unpin } = exports;
 
   const array = __pin(__newArray(Int32Array_ID, [1, 2, 3]));
@@ -43,35 +43,17 @@ loader.instantiate(fetch('./build/optimized.wasm'), {}).then(({ exports }) => {
     });
 
   // Преобразование в вектор
-  const toImage = () => {
-    const input = __getArray(__pin(getClearArray(canvasSize)));
+  const Train = () => {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
+    let arr = Array.from(data.data);
 
-    function getPixel(imgData, index) {
-      let i = index * 4,
-        d = imgData.data;
-      return [d[i], d[i + 1], d[i + 2], d[i + 3]]; // массив [R,G,B,A]
-    }
-
-    function getPixelXY(imgData, x, y) {
-      return getPixel(imgData, y * imgData.width + x);
-    }
-
-    for (let x = 0, indexInput = 0; x < canvasSize; x++) {
-      for (let y = 0; y < canvasSize; y++, indexInput++) {
-        let rgba = getPixelXY(data, x, y);
-        if (JSON.stringify(rgba) != JSON.stringify([255, 255, 255, 255])) {
-          input[indexInput] = 1;
-        }
-      }
-    }
+    const input = __getArray(__pin(toImage(arr, canvasSize)));
 
     console.log(input);
-
     __unpin(input);
   };
 
-  document.getElementById('train').addEventListener('click', toImage);
+  document.getElementById('train').addEventListener('click', Train);
 
   // Рисование
 
