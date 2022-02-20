@@ -6,17 +6,8 @@ import './style.css';
 loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
 
-  const { sum, Int32Array_ID, returnArr, getClearArray, toImage } = exports;
-  const { __newArray, __getArray, __getArrayView, __pin, __unpin } = exports;
-
-  const array = __pin(__newArray(Int32Array_ID, [1, 2, 3]));
-
-  const result = returnArr(array);
-  const getArrayRes = __getArray(result);
-
-  console.log(getArrayRes);
-
-  __unpin(array);
+  const { Int32Array_ID, toImage } = exports;
+  const { __newArray, __getArray, __pin, __unpin } = exports;
 
   // Константы и настройки
 
@@ -43,13 +34,17 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     });
 
   // Преобразование в вектор
+
   const Train = () => {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
-    let arr = Array.from(data.data);
+    const arr = Array.from(data.data);
 
-    const input = __getArray(__pin(toImage(arr, canvasSize)));
+    const array = __pin(__newArray(Int32Array_ID, arr));
+    const input = __getArray(__pin(toImage(array, canvasSize)));
 
     console.log(input);
+
+    __unpin(array);
     __unpin(input);
   };
 
