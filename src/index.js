@@ -2,15 +2,12 @@ import loader from '@assemblyscript/loader';
 import './style.css';
 
 // Подключение модуля Wasm
-
 loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
-
   const { Int32Array_ID, toImage } = exports;
   const { __newArray, __getArray, __pin, __unpin } = exports;
 
   // Константы и настройки
-
   let isMouseDown = false;
   let canvas = document.createElement('canvas');
   let ctx = canvas.getContext('2d');
@@ -20,11 +17,9 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const canvasSize = 80; // поле 80x80
 
   // Создать поле
-
   createCanvas();
 
   // Кнопки
-
   document.getElementById('clear').addEventListener('click', createCanvas);
 
   document
@@ -34,7 +29,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     });
 
   // Преобразование в вектор
-
   const Train = () => {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
     const arr = Array.from(data.data);
@@ -51,13 +45,11 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   document.getElementById('train').addEventListener('click', Train);
 
   // Рисование
-
   canvas.addEventListener('mousedown', (event) => mousedown(canvas, event));
   canvas.addEventListener('mousemove', (event) => mousemove(canvas, event));
   canvas.addEventListener('mouseup', () => mouseup());
 
   // Создание поля
-
   function createCanvas() {
     canvas.id = 'canvas';
     canvas.width = parseInt(canvasSize);
@@ -71,7 +63,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Загрузка рисунка
-
   function load() {
     linesArray = JSON.parse(localStorage.savedCanvas);
     let lines = JSON.parse(localStorage.getItem('savedCanvas'));
@@ -87,7 +78,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Позиция мыши
-
   function getMousePos(canvas, evt) {
     let rect = canvas.getBoundingClientRect();
     return {
@@ -97,7 +87,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Кнопка мыши зажата
-
   function mousedown(canvas, evt) {
     isMouseDown = true;
     let currentPosition = getMousePos(canvas, evt);
@@ -109,7 +98,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Процесс рисования
-
   function mousemove(canvas, evt) {
     if (isMouseDown) {
       let currentPosition = getMousePos(canvas, evt);
@@ -119,7 +107,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Кнопку мыши отпустили
-
   const mouseup = () => {
     isMouseDown = false;
   };

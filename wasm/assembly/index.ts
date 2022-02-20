@@ -11,20 +11,25 @@ export function sum(arr: Int32Array): i32 {
   }
   return sum;
 }
+
+// Экспорт типа массива
 export const Int32Array_ID = idof<Int32Array>();
 
 export function returnArr(arr: Int32Array): Int32Array {
   return arr;
 }
 
+// Создание пустого массива
 export function getClearArray(canvasSize: i32): Int32Array {
   const length = canvasSize * canvasSize;
   return new Int32Array(length).fill(0);
 }
 
+// Преобразование в вектор
 export function toImage(data: Int32Array, canvasSize: i32): Int32Array {
   const input = getClearArray(canvasSize);
 
+  // Получение rgba одного пикселя
   function getPixel(imgData: Int32Array, index: i32): Int32Array {
     let i = index * 4;
     let d = imgData;
