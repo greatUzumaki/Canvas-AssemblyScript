@@ -4,7 +4,7 @@ import './style.css';
 // Подключение модуля Wasm
 loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
-  const { Int32Array_ID, toImage } = exports;
+  const { Int32Array_ID, toImage, InitWeight } = exports;
   const { __newArray, __getArray, __pin, __unpin } = exports;
 
   // Константы и настройки
@@ -14,7 +14,20 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   let currentColor = '#000000';
   const currentBg = 'white';
   const currentSize = 2;
-  const canvasSize = 80; // поле 80x80
+  const canvasSize = 150; // поле
+
+  const crossBtn = document.getElementById('cross');
+  const circleBtn = document.getElementById('circle');
+  const predictBtn = document.getElementById('predict');
+  const buttonControl = (enable) => {
+    if (enable) {
+      crossBtn.disabled = false;
+      circleBtn.disabled = false;
+    } else {
+      crossBtn.disabled = true;
+      circleBtn.disabled = true;
+    }
+  };
 
   // Создать поле
   createCanvas();
@@ -31,18 +44,21 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Преобразование в вектор
   const Train = () => {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
-    const arr = Array.from(data.data);
+    // const arr = Array.from(data.data);
 
-    const array = __pin(__newArray(Int32Array_ID, arr));
-    const input = __getArray(__pin(toImage(array, canvasSize)));
+    // const array = __pin(__newArray(Int32Array_ID, arr));
+    // const input = __getArray(__pin(toImage(array, canvasSize)));
 
-    console.log(input);
+    // console.log(input);
 
-    __unpin(array);
-    __unpin(input);
+    // __unpin(array);
+    // __unpin(input);
+
+    const arr = __getArray(InitWeight(canvasSize));
+    console.log(arr);
   };
 
-  document.getElementById('train').addEventListener('click', Train);
+  document.getElementById('init').addEventListener('click', Train);
 
   // Рисование
   canvas.addEventListener('mousedown', (event) => mousedown(canvas, event));
@@ -60,6 +76,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     let main = document.getElementById('main');
     main.appendChild(canvas);
+    buttonControl(false);
   }
 
   // Загрузка рисунка
@@ -109,5 +126,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Кнопку мыши отпустили
   const mouseup = () => {
     isMouseDown = false;
+    buttonControl(true);
   };
 });

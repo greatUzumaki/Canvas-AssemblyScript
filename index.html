@@ -15,11 +15,16 @@
     <section id="main" class="main">
       <div class="buttons">
         <div class="cross_or_circle">
-          <button id="cross" class="btn btn-success cross">Крестик</button>
-          <button id="circle" class="btn btn-success circle">Круг</button>
+          <button id="cross" disabled class="btn btn-success cross">
+            Крестик
+          </button>
+          <button id="circle" disabled class="btn btn-success circle">
+            Круг
+          </button>
         </div>
-        <button id="train" class="btn train">Обучить</button>
+
         <button id="predict" class="btn" disabled>Угадать</button>
+        <button id="init" class="btn train">Инициализировать веса</button>
 
         <button id="clear" class="btn btn-danger">Сбросить</button>
       </div>

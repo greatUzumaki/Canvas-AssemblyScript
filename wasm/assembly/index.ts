@@ -53,3 +53,15 @@ export function toImage(data: Int32Array, canvasSize: i32): Int32Array {
 
   return input;
 }
+
+// Инициализация весов
+export function InitWeight(canvasSize: i32): Float64Array {
+  const weights = new Float64Array(canvasSize * canvasSize);
+
+  for (let i = 0, arrLen = weights.length; i < arrLen; i++) {
+    weights[i] = Math.round((Math.random() * (0.31 + 0.31) - 0.31) * 10) / 10; // [-0.3; 0.3]
+    if (weights[i] === -0) weights[i] = 0;
+  }
+
+  return weights;
+}
