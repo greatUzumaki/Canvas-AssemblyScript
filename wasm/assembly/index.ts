@@ -14,6 +14,7 @@ export function sum(arr: Int32Array): i32 {
 
 // Экспорт типа массива
 export const Int32Array_ID = idof<Int32Array>();
+export const Float64Array_ID = idof<Float64Array>();
 
 export function returnArr(arr: Int32Array): Int32Array {
   return arr;
@@ -64,4 +65,19 @@ export function InitWeight(canvasSize: i32): Float64Array {
   }
 
   return weights;
+}
+
+export function Predict(
+  data: Int32Array,
+  weights: Float64Array,
+  canvasSize: i32
+): f64 {
+  const input = toImage(data, canvasSize);
+
+  let sum: f64 = 0;
+  for (let i = 0, arrLen = weights.length; i < arrLen; i++) {
+    sum += input[i] * weights[i];
+  }
+
+  return sum;
 }

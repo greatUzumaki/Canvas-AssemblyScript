@@ -4,7 +4,8 @@ import './style.css';
 // Подключение модуля Wasm
 loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
-  const { Int32Array_ID, toImage, InitWeight } = exports;
+  const { Int32Array_ID, Float64Array_ID, toImage, InitWeight, Predict } =
+    exports;
   const { __newArray, __getArray, __pin, __unpin } = exports;
 
   // Константы и настройки
@@ -21,14 +22,17 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const crossBtn = document.getElementById('cross');
   const circleBtn = document.getElementById('circle');
   const predictBtn = document.getElementById('predict');
+  const initBtn = document.getElementById('init');
 
   const buttonControl = (enable) => {
     if (enable) {
       crossBtn.disabled = false;
       circleBtn.disabled = false;
+      predictBtn.disabled = false;
     } else {
       crossBtn.disabled = true;
       circleBtn.disabled = true;
+      predictBtn.disabled = true;
     }
   };
 
@@ -50,25 +54,39 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
       currentColor = this.value;
     });
 
-  // Преобразование в вектор
-  const Train = () => {
+  // Угадать
+  const PredictFunc = () => {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
-    // const arr = Array.from(data.data);
+    const arr = Array.from(data.data);
+    const pixelArr = __pin(__newArray(Int32Array_ID, arr));
 
-    // const array = __pin(__newArray(Int32Array_ID, arr));
-    // const input = __getArray(__pin(toImage(array, canvasSize)));
+    const weightsArr = __pin(__newArray(Float64Array_ID, weights));
 
-    // console.log(input);
+    const res = Predict(pixelArr, weightsArr, canvasSize);
 
-    // __unpin(array);
-    // __unpin(input);
+    console.log('Сумма нейрона:');
+    console.log(res);
+    console.log(Number(res.toFixed(3)));
 
-    const arr = __getArray(InitWeight(canvasSize));
-    console.log(arr);
-    weights = arr;
+    alert('Это круг');
+
+    __unpin(pixelArr);
+    __unpin(weightsArr);
   };
 
-  document.getElementById('init').addEventListener('click', Train);
+  // Инициализация весов
+  const initWeight = () => {
+    const arr = __getArray(InitWeight(canvasSize));
+
+    console.log('Инициализированные веса:');
+    console.log(arr);
+    weights = arr;
+
+    initBtn.disabled = true;
+  };
+
+  predictBtn.addEventListener('click', PredictFunc);
+  initBtn.addEventListener('click', initWeight);
 
   // Рисование
   canvas.addEventListener('mousedown', (event) => mousedown(canvas, event));
@@ -102,6 +120,8 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
       res = res.split(',');
       res = res.map((e) => Number(e));
+
+      weights = res;
 
       console.log('Загруженные веса:');
       console.log(res);
