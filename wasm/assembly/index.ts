@@ -82,12 +82,19 @@ export function Predict(
   return sum;
 }
 
-export function Correct(weights: Float64Array, cross: boolean): i32 {
-  let res = 0;
+export function Correct(
+  weights: Float64Array,
+  vectors: Int32Array,
+  neuronSum: i32
+): Float64Array {
+  let error = 1 - neuronSum;
+  const speedLearn = 0.5;
 
-  if (cross) {
-    res = 2;
-  } else res = 3;
+  let res = new Float64Array(weights.length);
+
+  for (let i = 0, arrLen = weights.length; i < arrLen; i++) {
+    if (vectors[i] === 1) res[i] = weights[i] + speedLearn * error * vectors[i];
+  }
 
   return res;
 }

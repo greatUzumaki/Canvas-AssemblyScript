@@ -4,13 +4,20 @@ import './style.css';
 // Подключение модуля Wasm
 loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
-  const { Int32Array_ID, Float64Array_ID, InitWeight, Predict, Correct } =
-    exports;
+  const {
+    Int32Array_ID,
+    Float64Array_ID,
+    InitWeight,
+    Predict,
+    Correct,
+    toImage,
+  } = exports;
   const { __newArray, __getArray, __pin, __unpin } = exports;
 
   // Константы и настройки
   let isMouseDown = false;
   let weights = [];
+  let pixels = [];
   let canvas = document.createElement('canvas');
   let ctx = canvas.getContext('2d');
   let currentColor = '#000000';
@@ -21,19 +28,16 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   let neuronSum = 0;
 
   // Кнопки
-  const crossBtn = document.getElementById('cross');
-  const circleBtn = document.getElementById('circle');
+  const correct = document.getElementById('correct');
   const predictBtn = document.getElementById('predict');
   const initBtn = document.getElementById('init');
 
   const buttonControl = (enable) => {
     if (enable) {
-      crossBtn.disabled = false;
-      circleBtn.disabled = false;
+      correct.disabled = false;
       predictBtn.disabled = false;
     } else {
-      crossBtn.disabled = true;
-      circleBtn.disabled = true;
+      correct.disabled = true;
       predictBtn.disabled = true;
     }
   };
@@ -62,6 +66,9 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     const arr = Array.from(data.data);
     const pixelArr = __pin(__newArray(Int32Array_ID, arr));
 
+    const vectors = __getArray(__pin(toImage(pixelArr, canvasSize)));
+    pixels = vectors;
+
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
 
     const res = Predict(pixelArr, weightsArr, canvasSize);
@@ -78,20 +85,23 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
       answer = 0;
     }
 
+    __unpin(vectors);
     __unpin(pixelArr);
     __unpin(weightsArr);
   };
 
   const reTrain = () => {
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
+    const vectorsArr = __pin(__newArray(Int32Array_ID, pixels));
 
-    if (answer === 1 && neuronSum < 0) {
-      let res = Correct(weightsArr, true);
-      console.log(res);
-    } else if (answer === 0 && neuronSum >= 0) {
-      Correct(weightsArr, false);
-    }
+    const newWeights = __getArray(
+      __pin(Correct(weightsArr, vectorsArr, neuronSum))
+    );
+    weights = newWeights;
+
     __unpin(weightsArr);
+    __unpin(vectorsArr);
+    __unpin(newWeights);
   };
 
   // Инициализация весов
@@ -107,8 +117,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     __unpin(arr);
   };
 
-  crossBtn.addEventListener('click', reTrain);
-  circleBtn.addEventListener('click', reTrain);
+  correct.addEventListener('click', reTrain);
   predictBtn.addEventListener('click', PredictFunc);
   initBtn.addEventListener('click', initWeight);
 
