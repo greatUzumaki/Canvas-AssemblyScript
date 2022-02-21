@@ -67,6 +67,7 @@ export function InitWeight(canvasSize: i32): Float64Array {
   return weights;
 }
 
+// Угадывание
 export function Predict(
   data: Int32Array,
   weights: Float64Array,
@@ -82,18 +83,19 @@ export function Predict(
   return sum;
 }
 
+// Корректировка весов
 export function Correct(
   weights: Float64Array,
   vectors: Int32Array,
-  neuronSum: i32
+  neuronSum: i32,
+  speedLearn: f64
 ): Float64Array {
-  let error = 1 - neuronSum;
-  const speedLearn = 0.5;
+  const error = 1 - neuronSum;
 
   let res = new Float64Array(weights.length);
 
-  for (let i = 0, arrLen = weights.length; i < arrLen; i++) {
-    if (vectors[i] === 1) res[i] = weights[i] + speedLearn * error * vectors[i];
+  for (let j = 0, arrLen = weights.length; j < arrLen; j++) {
+    if (vectors[j] === 1) res[j] = weights[j] + speedLearn * error * vectors[j];
   }
 
   return res;

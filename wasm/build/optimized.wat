@@ -12,6 +12,7 @@
  (type $i32_i32_f64_=>_none (func (param i32 i32 f64)))
  (type $i32_i32_=>_f64 (func (param i32 i32) (result f64)))
  (type $i32_i32_i32_=>_f64 (func (param i32 i32 i32) (result f64)))
+ (type $i32_i32_i32_f64_=>_i32 (func (param i32 i32 i32 f64) (result i32)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
  (import "env" "seed" (func $~lib/builtins/seed (result f64)))
  (global $assembly/index/Int32Array_ID i32 (i32.const 3))
@@ -2881,10 +2882,10 @@
   call $~lib/builtins/abort
   unreachable
  )
- (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
-  (local $3 i32)
+ (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (param $3 f64) (result i32)
   (local $4 i32)
   (local $5 i32)
+  (local $6 i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 8
   i32.sub
@@ -2895,13 +2896,13 @@
    i32.lt_s
    br_if $folding-inner0
    global.get $~lib/memory/__stack_pointer
-   local.tee $3
+   local.tee $4
    local.get $0
    i32.store
-   local.get $3
+   local.get $4
    local.get $1
    i32.store offset=4
-   local.get $3
+   local.get $4
    i32.const 4
    i32.sub
    global.set $~lib/memory/__stack_pointer
@@ -2910,20 +2911,20 @@
    i32.lt_s
    br_if $folding-inner0
    global.get $~lib/memory/__stack_pointer
-   local.tee $3
+   local.tee $4
    i32.const 0
    i32.store
    i32.const 1
    local.get $2
    i32.sub
-   local.set $4
-   local.get $3
+   local.set $5
+   local.get $4
    local.get $0
    i32.load offset=8
    i32.const 3
    i32.shr_u
    call $~lib/typedarray/Float64Array#constructor
-   local.tee $5
+   local.tee $6
    i32.store
    i32.const 0
    local.set $2
@@ -2931,10 +2932,10 @@
    i32.load offset=8
    i32.const 3
    i32.shr_u
-   local.set $3
+   local.set $4
    loop $for-loop|0
     local.get $2
-    local.get $3
+    local.get $4
     i32.lt_s
     if
      local.get $1
@@ -2943,14 +2944,14 @@
      i32.const 1
      i32.eq
      if
-      local.get $5
+      local.get $6
       local.get $2
       local.get $0
       local.get $2
       call $~lib/typedarray/Float64Array#__get
-      local.get $4
+      local.get $3
+      local.get $5
       f64.convert_i32_s
-      f64.const 0.5
       f64.mul
       local.get $1
       local.get $2
@@ -2975,7 +2976,7 @@
    i32.const 8
    i32.add
    global.set $~lib/memory/__stack_pointer
-   local.get $5
+   local.get $6
    return
   end
   i32.const 18272

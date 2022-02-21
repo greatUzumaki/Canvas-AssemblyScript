@@ -51,6 +51,10 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   document.getElementById('load').addEventListener('change', (e) => load(e));
 
   document
+    .getElementById('dataset')
+    .addEventListener('change', (e) => loadDataset(e));
+
+  document
     .getElementById('save')
     .addEventListener('click', () => save(weights));
 
@@ -61,9 +65,10 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     });
 
   // Угадать
-  const PredictFunc = () => {
+  const PredictFunc = (auto) => {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
     const arr = Array.from(data.data);
+
     const pixelArr = __pin(__newArray(Int32Array_ID, arr));
 
     const vectors = __getArray(__pin(toImage(pixelArr, canvasSize)));
@@ -78,10 +83,10 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     neuronSum = Number(res);
 
     if (neuronSum >= 0) {
-      alert('Это крестик');
+      !auto && alert('Это крестик');
       answer = 1;
     } else {
-      alert('Это круг');
+      !auto && alert('Это круг');
       answer = 0;
     }
 
@@ -95,9 +100,11 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     const vectorsArr = __pin(__newArray(Int32Array_ID, pixels));
 
     const newWeights = __getArray(
-      __pin(Correct(weightsArr, vectorsArr, neuronSum))
+      __pin(Correct(weightsArr, vectorsArr, neuronSum, 0.5))
     );
     weights = newWeights;
+
+    console.log('Переобучили');
 
     __unpin(weightsArr);
     __unpin(vectorsArr);
@@ -118,7 +125,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   };
 
   correct.addEventListener('click', reTrain);
-  predictBtn.addEventListener('click', PredictFunc);
+  predictBtn.addEventListener('click', () => PredictFunc(false));
   initBtn.addEventListener('click', initWeight);
 
   // Рисование
@@ -138,6 +145,41 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     let main = document.getElementById('main');
     main.appendChild(canvas);
     buttonControl(false);
+  }
+
+  const autoTrain = (fileName) => {
+    PredictFunc(true);
+
+    if (
+      (fileName.includes('cross') && answer === 0) ||
+      (fileName.includes('circle') && answer === 1)
+    ) {
+      reTrain();
+    }
+  };
+
+  function loadDataset(e) {
+    const files = e.target.files;
+
+    Object.keys(files).forEach((i) => {
+      const reader = new FileReader();
+      let fileName = e.target.files[i].name;
+
+      reader.onload = (e) => {
+        let img = new Image();
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+
+          autoTrain(fileName);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(e.target.files[i]);
+    });
+
+    buttonControl(true);
   }
 
   // Загрузка весов

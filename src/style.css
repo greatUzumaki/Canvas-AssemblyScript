@@ -52,3 +52,9 @@ canvas {
   font-weight: 600;
   background-color: #efefef;
 }
+
+#dataset ~ label {
+  font-size: 14px;
+  font-weight: 600;
+  background-color: #efefef;
+}
