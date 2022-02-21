@@ -80,6 +80,7 @@
  (export "returnArr" (func $export:assembly/index/returnArr))
  (export "toImage" (func $export:assembly/index/toImage))
  (export "Predict" (func $export:assembly/index/Predict))
+ (export "Correct" (func $export:assembly/index/Correct))
  (start $~start)
  (func $assembly/index/add (param $0 i32) (param $1 i32) (result i32)
   local.get $0
@@ -2932,6 +2933,20 @@
   i32.add
   f64.load
  )
+ (func $assembly/index/Correct (param $0 i32) (param $1 i32) (result i32)
+  (local $2 i32)
+  i32.const 0
+  local.set $2
+  local.get $1
+  if
+   i32.const 2
+   local.set $2
+  else
+   i32.const 3
+   local.set $2
+  end
+  local.get $2
+ )
  (func $~lib/rt/itcms/__pin (param $0 i32) (result i32)
   (local $1 i32)
   local.get $0
@@ -3765,5 +3780,25 @@
   i32.add
   global.set $~lib/memory/__stack_pointer
   local.get $3
+ )
+ (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (result i32)
+  (local $2 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  local.get $1
+  call $assembly/index/Correct
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $2
  )
 )

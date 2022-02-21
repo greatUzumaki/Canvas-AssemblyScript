@@ -75,6 +75,7 @@
  (export "returnArr" (func $export:assembly/index/returnArr))
  (export "toImage" (func $export:assembly/index/toImage))
  (export "Predict" (func $export:assembly/index/Predict))
+ (export "Correct" (func $export:assembly/index/Correct))
  (start $~start)
  (func $assembly/index/add (param $0 i32) (param $1 i32) (result i32)
   local.get $0
@@ -2870,6 +2871,36 @@
   i32.const 1
   call $~lib/builtins/abort
   unreachable
+ )
+ (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (result i32)
+  (local $2 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 1868
+  i32.lt_s
+  if
+   i32.const 18272
+   i32.const 18320
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  local.tee $2
+  local.get $0
+  i32.store
+  local.get $2
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  i32.const 2
+  i32.const 3
+  local.get $1
+  select
  )
  (func $byn-split-outlined-A$~lib/rt/itcms/__visit (param $0 i32)
   global.get $~lib/rt/itcms/white

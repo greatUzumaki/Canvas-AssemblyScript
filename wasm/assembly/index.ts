@@ -81,3 +81,13 @@ export function Predict(
 
   return sum;
 }
+
+export function Correct(weights: Float64Array, cross: boolean): i32 {
+  let res = 0;
+
+  if (cross) {
+    res = 2;
+  } else res = 3;
+
+  return res;
+}

@@ -4,7 +4,7 @@ import './style.css';
 // Подключение модуля Wasm
 loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
-  const { Int32Array_ID, Float64Array_ID, toImage, InitWeight, Predict } =
+  const { Int32Array_ID, Float64Array_ID, InitWeight, Predict, Correct } =
     exports;
   const { __newArray, __getArray, __pin, __unpin } = exports;
 
@@ -17,6 +17,8 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const currentBg = 'white';
   const currentSize = 2;
   const canvasSize = 150; // поле
+  let answer = null;
+  let neuronSum = 0;
 
   // Кнопки
   const crossBtn = document.getElementById('cross');
@@ -66,25 +68,47 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
     console.log('Сумма нейрона:');
     console.log(res);
-    console.log(Number(res.toFixed(3)));
+    neuronSum = Number(res);
 
-    alert('Это круг');
+    if (neuronSum >= 0) {
+      alert('Это крестик');
+      answer = 1;
+    } else {
+      alert('Это круг');
+      answer = 0;
+    }
 
     __unpin(pixelArr);
     __unpin(weightsArr);
   };
 
+  const reTrain = () => {
+    const weightsArr = __pin(__newArray(Float64Array_ID, weights));
+
+    if (answer === 1 && neuronSum < 0) {
+      let res = Correct(weightsArr, true);
+      console.log(res);
+    } else if (answer === 0 && neuronSum >= 0) {
+      Correct(weightsArr, false);
+    }
+    __unpin(weightsArr);
+  };
+
   // Инициализация весов
   const initWeight = () => {
-    const arr = __getArray(InitWeight(canvasSize));
+    const arr = __getArray(__pin(InitWeight(canvasSize)));
 
     console.log('Инициализированные веса:');
     console.log(arr);
     weights = arr;
 
     initBtn.disabled = true;
+
+    __unpin(arr);
   };
 
+  crossBtn.addEventListener('click', reTrain);
+  circleBtn.addEventListener('click', reTrain);
   predictBtn.addEventListener('click', PredictFunc);
   initBtn.addEventListener('click', initWeight);
 
