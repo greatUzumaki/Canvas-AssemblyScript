@@ -159,11 +159,13 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   };
 
   function loadDataset(e) {
-    const files = e.target.files;
+    let files = e.target.files;
+    files = Object.values(files);
+    console.log(files);
 
-    Object.keys(files).forEach((i) => {
+    files.forEach((file) => {
       const reader = new FileReader();
-      let fileName = e.target.files[i].name;
+      let fileName = file.name;
 
       reader.onload = (e) => {
         let img = new Image();
@@ -176,7 +178,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
         };
         img.src = e.target.result;
       };
-      reader.readAsDataURL(e.target.files[i]);
+      reader.readAsDataURL(file);
     });
 
     buttonControl(true);
