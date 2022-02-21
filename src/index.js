@@ -9,6 +9,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
   // Константы и настройки
   let isMouseDown = false;
+  let weights = [];
   let canvas = document.createElement('canvas');
   let ctx = canvas.getContext('2d');
   let currentColor = '#000000';
@@ -16,9 +17,11 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const currentSize = 2;
   const canvasSize = 150; // поле
 
+  // Кнопки
   const crossBtn = document.getElementById('cross');
   const circleBtn = document.getElementById('circle');
   const predictBtn = document.getElementById('predict');
+
   const buttonControl = (enable) => {
     if (enable) {
       crossBtn.disabled = false;
@@ -32,8 +35,14 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Создать поле
   createCanvas();
 
-  // Кнопки
+  // Ивенты
   document.getElementById('clear').addEventListener('click', createCanvas);
+
+  document.getElementById('load').addEventListener('change', (e) => load(e));
+
+  document
+    .getElementById('save')
+    .addEventListener('click', () => save(weights));
 
   document
     .getElementById('colorpicker')
@@ -56,6 +65,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
     const arr = __getArray(InitWeight(canvasSize));
     console.log(arr);
+    weights = arr;
   };
 
   document.getElementById('init').addEventListener('click', Train);
@@ -79,20 +89,41 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     buttonControl(false);
   }
 
-  // Загрузка рисунка
-  function load() {
-    linesArray = JSON.parse(localStorage.savedCanvas);
-    let lines = JSON.parse(localStorage.getItem('savedCanvas'));
-    for (let i = 1; i < lines.length; i++) {
-      ctx.beginPath();
-      ctx.moveTo(linesArray[i - 1].x, linesArray[i - 1].y);
-      ctx.lineWidth = linesArray[i].size;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = linesArray[i].color;
-      ctx.lineTo(linesArray[i].x, linesArray[i].y);
-      ctx.stroke();
-    }
+  // Загрузка весов
+  function load(e) {
+    const file = e.target.files[0];
+
+    let reader = new FileReader();
+
+    reader.readAsText(file);
+
+    reader.onload = function () {
+      let res = reader.result;
+
+      res = res.split(',');
+      res = res.map((e) => Number(e));
+
+      console.log('Загруженные веса:');
+      console.log(res);
+    };
+
+    reader.onerror = function () {
+      console.log(reader.error);
+    };
   }
+
+  // Сохранение весов
+  const save = (content) => {
+    const a = document.createElement('a');
+
+    const file = new Blob([content], { type: 'text/plain' });
+
+    a.href = URL.createObjectURL(file);
+    a.download = 'weights.txt';
+    a.click();
+
+    URL.revokeObjectURL(a.href);
+  };
 
   // Позиция мыши
   function getMousePos(canvas, evt) {
