@@ -95,6 +95,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     __unpin(weightsArr);
   };
 
+  // Скоректировать веса
   const reTrain = () => {
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
     const vectorsArr = __pin(__newArray(Int32Array_ID, pixels));
@@ -147,21 +148,36 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     buttonControl(false);
   }
 
+  // Автообучение по датасету
   const autoTrain = (fileName) => {
     PredictFunc(true);
 
     if (
       (fileName.includes('cross') && answer === 0) ||
       (fileName.includes('circle') && answer === 1)
-    ) {
+    )
       reTrain();
-    }
   };
 
+  // Перемешать массив
+  function shuffle(arr = []) {
+    let newArr = [];
+
+    for (let i = arr.length - 1; i >= 0; i--) {
+      let id = Math.floor(Math.random() * arr.length);
+      newArr.push(arr[id]);
+      arr.splice(id, 1);
+    }
+
+    return newArr;
+  }
+
+  // Загрузить датасет
   function loadDataset(e) {
     let files = e.target.files;
     files = Object.values(files);
-    console.log(files);
+
+    files = shuffle(files);
 
     files.forEach((file) => {
       const reader = new FileReader();
