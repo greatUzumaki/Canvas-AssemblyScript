@@ -32,18 +32,13 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const predictBtn = document.getElementById('predict');
   const initBtn = document.getElementById('init');
 
-  const buttonControl = (enable) => {
-    if (enable) {
-      correct.disabled = false;
-      predictBtn.disabled = false;
-    } else {
-      correct.disabled = true;
-      predictBtn.disabled = true;
-    }
-  };
-
   // Создать поле
   createCanvas();
+
+  // Рисование
+  canvas.addEventListener('mousedown', (event) => mousedown(canvas, event));
+  canvas.addEventListener('mousemove', (event) => mousemove(canvas, event));
+  canvas.addEventListener('mouseup', () => mouseup());
 
   // Ивенты
   document.getElementById('clear').addEventListener('click', createCanvas);
@@ -64,8 +59,12 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
       currentColor = this.value;
     });
 
+  correct.addEventListener('click', reTrain);
+  predictBtn.addEventListener('click', () => PredictFunc(false));
+  initBtn.addEventListener('click', initWeight);
+
   // Угадать
-  const PredictFunc = (auto) => {
+  function PredictFunc(auto) {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
     const arr = Array.from(data.data);
 
@@ -93,10 +92,10 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     __unpin(vectors);
     __unpin(pixelArr);
     __unpin(weightsArr);
-  };
+  }
 
   // Скоректировать веса
-  const reTrain = () => {
+  function reTrain() {
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
     const vectorsArr = __pin(__newArray(Int32Array_ID, pixels));
 
@@ -110,10 +109,10 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     __unpin(weightsArr);
     __unpin(vectorsArr);
     __unpin(newWeights);
-  };
+  }
 
   // Инициализация весов
-  const initWeight = () => {
+  function initWeight() {
     const arr = __getArray(__pin(InitWeight(canvasSize)));
 
     console.log('Инициализированные веса:');
@@ -123,16 +122,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     initBtn.disabled = true;
 
     __unpin(arr);
-  };
-
-  correct.addEventListener('click', reTrain);
-  predictBtn.addEventListener('click', () => PredictFunc(false));
-  initBtn.addEventListener('click', initWeight);
-
-  // Рисование
-  canvas.addEventListener('mousedown', (event) => mousedown(canvas, event));
-  canvas.addEventListener('mousemove', (event) => mousemove(canvas, event));
-  canvas.addEventListener('mouseup', () => mouseup());
+  }
 
   // Создание поля
   function createCanvas() {
@@ -149,7 +139,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Автообучение по датасету
-  const autoTrain = (fileName) => {
+  function autoTrain(fileName) {
     PredictFunc(true);
 
     if (
@@ -157,7 +147,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
       (fileName.includes('circle') && answer === 1)
     )
       reTrain();
-  };
+  }
 
   // Перемешать массив
   function shuffle(arr = []) {
@@ -226,7 +216,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Сохранение весов
-  const save = (content) => {
+  function save(content) {
     const a = document.createElement('a');
 
     const file = new Blob([content], { type: 'text/plain' });
@@ -236,7 +226,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     a.click();
 
     URL.revokeObjectURL(a.href);
-  };
+  }
 
   // Позиция мыши
   function getMousePos(canvas, evt) {
@@ -268,8 +258,19 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Кнопку мыши отпустили
-  const mouseup = () => {
+  function mouseup() {
     isMouseDown = false;
     buttonControl(true);
-  };
+  }
+
+  // Включение и отключение кнопок
+  function buttonControl(enable) {
+    if (enable) {
+      correct.disabled = false;
+      predictBtn.disabled = false;
+    } else {
+      correct.disabled = true;
+      predictBtn.disabled = true;
+    }
+  }
 });
