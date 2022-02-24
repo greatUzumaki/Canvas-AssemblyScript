@@ -16,16 +16,16 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
   // Константы и настройки
   let isMouseDown = false;
-  let weights = [];
-  let pixels = [];
+  let weights = []; // массив весов
+  let pixels = []; // массив вектора (0 - пусто, 1 - закрашено)
   let canvas = document.createElement('canvas');
   let ctx = canvas.getContext('2d');
-  let currentColor = '#000000';
-  const currentBg = 'white';
-  const currentSize = 2;
+  let currentColor = '#000000'; // цвет линии
+  const currentBg = 'white'; // цвет фона
+  const currentSize = 2; // толщина линии
   const canvasSize = 150; // поле
-  let answer = null;
-  let neuronSum = 0;
+  let answer = null; // ответ
+  let neuronSum = 0; // сумма нейрона
 
   // Кнопки
   const correct = document.getElementById('correct');
