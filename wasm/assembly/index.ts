@@ -67,19 +67,29 @@ export function Predict(
   return sum;
 }
 
+const cross_value = 0.95;
+const other_value = 0.1;
+
 // Корректировка весов
 export function Correct(
   weights: Float64Array,
   vectors: Int32Array,
   neuronSum: i32,
-  speedLearn: f64
+  speedLearn: f64,
+  cross: boolean,
+  sigmoid_derivative: f64
 ): Float64Array {
-  const error = 1 - neuronSum;
-
   let res = new Float64Array(weights.length);
+  res = weights.slice();
+
+  let error: f64;
+
+  if (cross) error = neuronSum - cross_value;
+  else error = neuronSum - other_value;
 
   for (let j = 0, arrLen = weights.length; j < arrLen; j++) {
-    if (vectors[j] === 1) res[j] = weights[j] + speedLearn * error * vectors[j];
+    if (vectors[j] === 1)
+      res[j] -= speedLearn * error * sigmoid_derivative * vectors[j];
   }
 
   return res;

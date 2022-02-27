@@ -24,11 +24,12 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const currentBg = 'white'; // цвет фона
   const currentSize = 2; // толщина линии
   const canvasSize = 150; // поле
-  let answer = null; // ответ
   let neuronSum = 0; // сумма нейрона
+  let sigmoidRes = 0; // ответ сигмоиды
 
   // Кнопки
-  const correct = document.getElementById('correct');
+  const correct_cross = document.getElementById('correct_cross');
+  const correct_other = document.getElementById('correct_other');
   const predictBtn = document.getElementById('predict');
   const initBtn = document.getElementById('init');
 
@@ -59,9 +60,20 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
       currentColor = this.value;
     });
 
-  correct.addEventListener('click', reTrain);
+  correct_cross.addEventListener('click', () => reTrain(true));
+  correct_other.addEventListener('click', () => reTrain(false));
   predictBtn.addEventListener('click', () => PredictFunc(false));
   initBtn.addEventListener('click', initWeight);
+
+  // вычисление сигмоиды
+  function sigmoid(sum) {
+    return 1 / (1 + Math.exp(-sum));
+  }
+
+  // производная сигмоиды
+  function sigmoid_derivative(sigmoid) {
+    return sigmoid * (1 - sigmoid);
+  }
 
   // Угадать
   function PredictFunc(auto) {
@@ -81,13 +93,17 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     console.log(res);
     neuronSum = Number(res);
 
-    if (neuronSum >= 0) {
-      !auto && alert('Это крестик');
-      answer = 1;
-    } else {
-      !auto && alert('Это круг');
-      answer = 0;
-    }
+    // if (neuronSum >= 0) {
+    //   !auto && alert('Это крестик');
+    //   answer = 1;
+    // } else {
+    //   !auto && alert('Это круг');
+    //   answer = 0;
+    // }
+
+    sigmoidRes = sigmoid(neuronSum);
+
+    !auto && alert(`Это крест на ${sigmoidRes.toFixed(3) * 100}%`);
 
     __unpin(vectors);
     __unpin(pixelArr);
@@ -95,16 +111,21 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   }
 
   // Скоректировать веса
-  function reTrain() {
+  function reTrain(cross) {
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
     const vectorsArr = __pin(__newArray(Int32Array_ID, pixels));
 
+    let sigmoidDeriv = sigmoid_derivative(sigmoidRes);
+
     const newWeights = __getArray(
-      __pin(Correct(weightsArr, vectorsArr, neuronSum, 0.5))
+      __pin(
+        Correct(weightsArr, vectorsArr, neuronSum, 0.05, cross, sigmoidDeriv)
+      )
     );
     weights = newWeights;
 
     console.log('Переобучили');
+    console.log(weights);
 
     __unpin(weightsArr);
     __unpin(vectorsArr);
@@ -142,11 +163,8 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   function autoTrain(fileName) {
     PredictFunc(true);
 
-    if (
-      (fileName.includes('cross') && answer === 0) ||
-      (fileName.includes('circle') && answer === 1)
-    )
-      reTrain();
+    if (fileName.includes('cross') && sigmoidRes < 0.95) reTrain(true);
+    else if (fileName.includes('circle') && sigmoidRes > 0.1) reTrain(false);
   }
 
   // Перемешать массив
@@ -266,10 +284,12 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Включение и отключение кнопок
   function buttonControl(enable) {
     if (enable) {
-      correct.disabled = false;
+      correct_cross.disabled = false;
+      correct_other.disabled = false;
       predictBtn.disabled = false;
     } else {
-      correct.disabled = true;
+      correct_cross.disabled = true;
+      correct_other.disabled = true;
       predictBtn.disabled = true;
     }
   }
