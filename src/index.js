@@ -6,6 +6,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   // Функции Wasm
   const {
     Int32Array_ID,
+    Int32Array_ID2,
     Float64Array_ID,
     InitWeight,
     Predict,
@@ -85,9 +86,10 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     const vectors = __getArray(__pin(toImage(pixelArr, canvasSize)));
     pixels = vectors;
 
+    const vectorsArr = __pin(__newArray(Int32Array_ID2, pixels));
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
 
-    const res = Predict(pixelArr, weightsArr, canvasSize);
+    const res = Predict(weightsArr, vectorsArr);
 
     console.log('Сумма нейрона:');
     console.log(res);
@@ -103,10 +105,11 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
     sigmoidRes = sigmoid(neuronSum);
 
-    !auto && alert(`Это крест на ${sigmoidRes.toFixed(3) * 100}%`);
+    !auto && alert(`Это крест на ${(sigmoidRes * 100).toFixed(3)}%`);
 
-    __unpin(vectors);
     __unpin(pixelArr);
+    __unpin(vectors);
+    __unpin(vectorsArr);
     __unpin(weightsArr);
   }
 
@@ -125,7 +128,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     weights = newWeights;
 
     console.log('Переобучили');
-    console.log(weights);
 
     __unpin(weightsArr);
     __unpin(vectorsArr);

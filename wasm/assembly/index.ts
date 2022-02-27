@@ -2,6 +2,7 @@
 
 // Экспорт типа массива
 export const Int32Array_ID = idof<Int32Array>();
+export const Int32Array_ID2 = idof<Int32Array>();
 export const Float64Array_ID = idof<Float64Array>();
 
 // Создание пустого массива
@@ -52,16 +53,10 @@ export function InitWeight(canvasSize: i32): Float64Array {
 }
 
 // Угадывание
-export function Predict(
-  data: Int32Array,
-  weights: Float64Array,
-  canvasSize: i32
-): f64 {
-  const input = toImage(data, canvasSize);
-
+export function Predict(weights: Float64Array, vectors: Int32Array): f64 {
   let sum: f64 = 0;
   for (let i = 0, arrLen = weights.length; i < arrLen; i++) {
-    sum += input[i] * weights[i];
+    sum += vectors[i] * weights[i];
   }
 
   return sum;

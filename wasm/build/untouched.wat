@@ -6,8 +6,8 @@
  (type $i32_i32_i32_=>_none (func (param i32 i32 i32)))
  (type $i32_i32_i32_=>_i32 (func (param i32 i32 i32) (result i32)))
  (type $none_=>_none (func))
+ (type $i32_i32_=>_f64 (func (param i32 i32) (result f64)))
  (type $none_=>_f64 (func (result f64)))
- (type $i32_i32_i32_=>_f64 (func (param i32 i32 i32) (result f64)))
  (type $i32_i32_i32_f64_i32_f64_=>_i32 (func (param i32 i32 i32 f64 i32 f64) (result i32)))
  (type $i32_i32_i32_i32_=>_none (func (param i32 i32 i32 i32)))
  (type $none_=>_i32 (func (result i32)))
@@ -15,10 +15,10 @@
  (type $i64_=>_i64 (func (param i64) (result i64)))
  (type $i64_=>_none (func (param i64)))
  (type $i32_i32_f64_=>_none (func (param i32 i32 f64)))
- (type $i32_i32_=>_f64 (func (param i32 i32) (result f64)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
  (import "env" "seed" (func $~lib/builtins/seed (result f64)))
  (global $assembly/index/Int32Array_ID i32 (i32.const 3))
+ (global $assembly/index/Int32Array_ID2 i32 (i32.const 3))
  (global $assembly/index/Float64Array_ID i32 (i32.const 4))
  (global $assembly/index/cross_value f64 (f64.const 0.95))
  (global $assembly/index/other_value f64 (f64.const 0.1))
@@ -69,6 +69,7 @@
  (table $0 3 funcref)
  (elem $0 (i32.const 1) $assembly/index/toImage~getPixel $assembly/index/toImage~anonymous|0)
  (export "Int32Array_ID" (global $assembly/index/Int32Array_ID))
+ (export "Int32Array_ID2" (global $assembly/index/Int32Array_ID2))
  (export "Float64Array_ID" (global $assembly/index/Float64Array_ID))
  (export "getClearArray" (func $assembly/index/getClearArray))
  (export "InitWeight" (func $assembly/index/InitWeight))
@@ -2882,6 +2883,45 @@
   i32.add
   f64.load
  )
+ (func $assembly/index/Predict (param $0 i32) (param $1 i32) (result f64)
+  (local $2 f64)
+  (local $3 i32)
+  (local $4 i32)
+  (local $5 i32)
+  f64.const 0
+  local.set $2
+  i32.const 0
+  local.set $3
+  local.get $0
+  call $~lib/typedarray/Float64Array#get:length
+  local.set $4
+  loop $for-loop|0
+   local.get $3
+   local.get $4
+   i32.lt_s
+   local.set $5
+   local.get $5
+   if
+    local.get $2
+    local.get $1
+    local.get $3
+    call $~lib/typedarray/Int32Array#__get
+    f64.convert_i32_s
+    local.get $0
+    local.get $3
+    call $~lib/typedarray/Float64Array#__get
+    f64.mul
+    f64.add
+    local.set $2
+    local.get $3
+    i32.const 1
+    i32.add
+    local.set $3
+    br $for-loop|0
+   end
+  end
+  local.get $2
+ )
  (func $~lib/util/memory/memcpy (param $0 i32) (param $1 i32) (param $2 i32)
   (local $3 i32)
   (local $4 i32)
@@ -4826,67 +4866,6 @@
   global.set $~lib/memory/__stack_pointer
   local.get $7
  )
- (func $assembly/index/Predict (param $0 i32) (param $1 i32) (param $2 i32) (result f64)
-  (local $3 i32)
-  (local $4 f64)
-  (local $5 i32)
-  (local $6 i32)
-  (local $7 i32)
-  (local $8 f64)
-  global.get $~lib/memory/__stack_pointer
-  i32.const 4
-  i32.sub
-  global.set $~lib/memory/__stack_pointer
-  call $~stack_check
-  global.get $~lib/memory/__stack_pointer
-  i32.const 0
-  i32.store
-  global.get $~lib/memory/__stack_pointer
-  local.get $0
-  local.get $2
-  call $assembly/index/toImage
-  local.tee $3
-  i32.store
-  f64.const 0
-  local.set $4
-  i32.const 0
-  local.set $5
-  local.get $1
-  call $~lib/typedarray/Float64Array#get:length
-  local.set $6
-  loop $for-loop|0
-   local.get $5
-   local.get $6
-   i32.lt_s
-   local.set $7
-   local.get $7
-   if
-    local.get $4
-    local.get $3
-    local.get $5
-    call $~lib/typedarray/Int32Array#__get
-    f64.convert_i32_s
-    local.get $1
-    local.get $5
-    call $~lib/typedarray/Float64Array#__get
-    f64.mul
-    f64.add
-    local.set $4
-    local.get $5
-    i32.const 1
-    i32.add
-    local.set $5
-    br $for-loop|0
-   end
-  end
-  local.get $4
-  local.set $8
-  global.get $~lib/memory/__stack_pointer
-  i32.const 4
-  i32.add
-  global.set $~lib/memory/__stack_pointer
-  local.get $8
- )
  (func $~lib/typedarray/Float64Array#slice (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
   (local $3 i32)
   (local $4 i32)
@@ -5115,8 +5094,8 @@
   global.set $~lib/memory/__stack_pointer
   local.get $2
  )
- (func $export:assembly/index/Predict (param $0 i32) (param $1 i32) (param $2 i32) (result f64)
-  (local $3 f64)
+ (func $export:assembly/index/Predict (param $0 i32) (param $1 i32) (result f64)
+  (local $2 f64)
   global.get $~lib/memory/__stack_pointer
   i32.const 8
   i32.sub
@@ -5130,14 +5109,13 @@
   i32.store offset=4
   local.get $0
   local.get $1
-  local.get $2
   call $assembly/index/Predict
-  local.set $3
+  local.set $2
   global.get $~lib/memory/__stack_pointer
   i32.const 8
   i32.add
   global.set $~lib/memory/__stack_pointer
-  local.get $3
+  local.get $2
  )
  (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (param $3 f64) (param $4 i32) (param $5 f64) (result i32)
   (local $6 i32)
