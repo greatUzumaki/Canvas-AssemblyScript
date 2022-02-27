@@ -5065,7 +5065,9 @@
      local.get $6
      local.get $8
      call $~lib/typedarray/Float64Array#__get
+     f64.const 2
      local.get $3
+     f64.mul
      local.get $7
      f64.mul
      local.get $5

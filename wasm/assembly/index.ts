@@ -89,7 +89,7 @@ export function Correct(
 
   for (let j = 0, arrLen = weights.length; j < arrLen; j++) {
     if (vectors[j] === 1)
-      res[j] -= speedLearn * error * sigmoid_derivative * vectors[j];
+      res[j] -= 2 * speedLearn * error * sigmoid_derivative * vectors[j];
   }
 
   return res;
