@@ -33,6 +33,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const correct_other = document.getElementById('correct_other');
   const predictBtn = document.getElementById('predict');
   const initBtn = document.getElementById('init');
+  const weightMap = document.getElementById('map');
 
   // Создать поле
   createCanvas();
@@ -65,13 +66,14 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   correct_other.addEventListener('click', () => reTrain(false));
   predictBtn.addEventListener('click', () => PredictFunc(false));
   initBtn.addEventListener('click', initWeight);
+  weightMap.addEventListener('click', buildMap);
 
-  // вычисление сигмоиды
+  // Вычисление сигмоиды
   function sigmoid(sum) {
     return 1 / (1 + Math.exp(-sum));
   }
 
-  // производная сигмоиды
+  // Производная сигмоиды
   function sigmoid_derivative(sigmoid) {
     return sigmoid * (1 - sigmoid);
   }
@@ -105,7 +107,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
 
     sigmoidRes = sigmoid(neuronSum);
 
-    !auto && alert(`Это крест на ${(sigmoidRes * 100).toFixed(3)}%`);
+    !auto && alert(`Это крест на ${(sigmoidRes * 100).toFixed(2)}%`);
 
     __unpin(pixelArr);
     __unpin(vectors);
@@ -246,6 +248,45 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     a.click();
 
     URL.revokeObjectURL(a.href);
+  }
+
+  function buildMap() {
+    let win = window.open('map.html', '_blank');
+
+    let element = win.document.createElement('script');
+    element.type = 'text/javascript';
+    element.innerHTML = `
+    let w = []
+    w.push(${weights})
+    console.log(w)
+    let table = document.createElement('table');
+    table.border = 1
+
+    for (let i = 0, weigthSize = 0; i < ${canvasSize}; i++){
+    let tr = document.createElement('tr');   
+
+    for (let j = 0; j < ${canvasSize}; j++){
+      let td = document.createElement('td');
+      if (w[weigthSize] > 0 && w[weigthSize] < 0.25) td.style.backgroundColor = 'rgba(0,255,0,0.1)'
+      else if (w[weigthSize] > 0.25) td.style.backgroundColor = 'rgba(0,255,0,0.6)'
+
+      if (w[weigthSize] < 0 && w[weigthSize] > -0.25) td.style.backgroundColor = 'rgba(255,0,0,0.1)'
+      else if (w[weigthSize] < -0.25) td.style.backgroundColor = 'rgba(0,255,0,0.6)'
+
+
+      let text = document.createTextNode(w[weigthSize].toFixed(3));
+
+      td.appendChild(text);
+      tr.appendChild(td);
+      weigthSize++
+    table.appendChild(tr);
+  }
+}
+document.body.appendChild(table);    
+`;
+    setTimeout(function () {
+      win.document.body.appendChild(element);
+    }, 1000);
   }
 
   // Позиция мыши

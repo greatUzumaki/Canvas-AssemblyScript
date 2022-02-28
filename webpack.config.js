@@ -20,7 +20,15 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+      filename: 'index.html',
       template: 'index.html',
+      chunks: ['main'],
+    }),
+
+    new HtmlWebpackPlugin({
+      filename: 'map.html',
+      template: 'map.html',
+      chunks: ['map'],
     }),
 
     new CopyPlugin({

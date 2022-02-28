@@ -3185,7 +3185,7 @@
     f64.mul
     f64.const 0.31
     f64.sub
-    f64.const 10
+    f64.const 1e3
     f64.mul
     local.tee $4
     f64.ceil
@@ -3199,7 +3199,7 @@
     f64.sub
     f64.ge
     select
-    f64.const 10
+    f64.const 1e3
     f64.div
     call $~lib/typedarray/Float64Array#__set
     local.get $0

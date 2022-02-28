@@ -4821,7 +4821,7 @@
     f64.mul
     f64.const 0.31
     f64.sub
-    f64.const 10
+    f64.const 1e3
     f64.mul
     local.set $5
     local.get $5
@@ -4837,7 +4837,7 @@
     local.get $5
     f64.le
     select
-    f64.const 10
+    f64.const 1e3
     f64.div
     call $~lib/typedarray/Float64Array#__set
     local.get $1
