@@ -97,14 +97,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     console.log(res);
     neuronSum = Number(res);
 
-    // if (neuronSum >= 0) {
-    //   !auto && alert('Это крестик');
-    //   answer = 1;
-    // } else {
-    //   !auto && alert('Это круг');
-    //   answer = 0;
-    // }
-
     sigmoidRes = sigmoid(neuronSum);
 
     !auto && alert(`Это крест на ${(sigmoidRes * 100).toFixed(2)}%`);
