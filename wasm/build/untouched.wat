@@ -8,7 +8,7 @@
  (type $none_=>_none (func))
  (type $i32_i32_=>_f64 (func (param i32 i32) (result f64)))
  (type $none_=>_f64 (func (result f64)))
- (type $i32_i32_i32_f64_i32_f64_=>_i32 (func (param i32 i32 i32 f64 i32 f64) (result i32)))
+ (type $i32_i32_i32_f64_i32_=>_i32 (func (param i32 i32 i32 f64 i32) (result i32)))
  (type $i32_i32_i32_i32_=>_none (func (param i32 i32 i32 i32)))
  (type $none_=>_i32 (func (result i32)))
  (type $i32_i32_i32_i32_=>_i32 (func (param i32 i32 i32 i32) (result i32)))
@@ -4978,13 +4978,13 @@
   global.set $~lib/memory/__stack_pointer
   local.get $9
  )
- (func $assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (param $3 f64) (param $4 i32) (param $5 f64) (result i32)
-  (local $6 i32)
-  (local $7 f64)
+ (func $assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (param $3 f64) (param $4 i32) (result i32)
+  (local $5 i32)
+  (local $6 f64)
+  (local $7 i32)
   (local $8 i32)
   (local $9 i32)
   (local $10 i32)
-  (local $11 i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 4
   i32.sub
@@ -4998,81 +4998,66 @@
   local.get $0
   call $~lib/typedarray/Float64Array#get:length
   call $~lib/typedarray/Float64Array#constructor
-  local.tee $6
+  local.tee $5
   i32.store
   global.get $~lib/memory/__stack_pointer
   local.get $0
   i32.const 0
   global.get $~lib/builtins/i32.MAX_VALUE
   call $~lib/typedarray/Float64Array#slice
-  local.tee $6
+  local.tee $5
   i32.store
   local.get $4
   if
-   local.get $2
-   f64.convert_i32_s
-   global.get $assembly/index/cross_value
-   f64.sub
-   local.set $7
+   f64.const 1
+   local.set $6
   else
-   local.get $2
-   f64.convert_i32_s
-   global.get $assembly/index/other_value
-   f64.sub
-   local.set $7
+   f64.const -1
+   local.set $6
   end
   i32.const 0
-  local.set $8
+  local.set $7
   local.get $0
   call $~lib/typedarray/Float64Array#get:length
-  local.set $9
+  local.set $8
   loop $for-loop|0
+   local.get $7
    local.get $8
-   local.get $9
    i32.lt_s
-   local.set $10
-   local.get $10
+   local.set $9
+   local.get $9
    if
     local.get $1
-    local.get $8
+    local.get $7
     call $~lib/typedarray/Int32Array#__get
     i32.const 1
     i32.eq
     if
-     local.get $6
-     local.get $8
-     local.get $6
-     local.get $8
-     call $~lib/typedarray/Float64Array#__get
-     f64.const 2
-     local.get $3
-     f64.mul
-     local.get $7
-     f64.mul
      local.get $5
+     local.get $7
+     local.get $0
+     local.get $7
+     call $~lib/typedarray/Float64Array#__get
+     local.get $3
+     local.get $6
      f64.mul
-     local.get $1
-     local.get $8
-     call $~lib/typedarray/Int32Array#__get
-     f64.convert_i32_s
-     f64.mul
-     f64.sub
+     f64.add
      call $~lib/typedarray/Float64Array#__set
     end
-    local.get $8
+    local.get $7
     i32.const 1
     i32.add
-    local.set $8
+    local.set $7
     br $for-loop|0
    end
   end
-  local.get $6
-  local.set $11
+  local.get $5
+  local.set $10
   global.get $~lib/memory/__stack_pointer
   i32.const 4
   i32.add
   global.set $~lib/memory/__stack_pointer
-  local.get $11
+  local.get $10
  )
  (func $export:assembly/index/toImage (param $0 i32) (param $1 i32) (result i32)
   (local $2 i32)
@@ -5117,8 +5102,8 @@
   global.set $~lib/memory/__stack_pointer
   local.get $2
  )
- (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (param $3 f64) (param $4 i32) (param $5 f64) (result i32)
-  (local $6 i32)
+ (func $export:assembly/index/Correct (param $0 i32) (param $1 i32) (param $2 i32) (param $3 f64) (param $4 i32) (result i32)
+  (local $5 i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 8
   i32.sub
@@ -5135,13 +5120,12 @@
   local.get $2
   local.get $3
   local.get $4
-  local.get $5
   call $assembly/index/Correct
-  local.set $6
+  local.set $5
   global.get $~lib/memory/__stack_pointer
   i32.const 8
   i32.add
   global.set $~lib/memory/__stack_pointer
-  local.get $6
+  local.get $5
  )
 )

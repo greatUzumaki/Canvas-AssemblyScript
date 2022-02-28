@@ -26,7 +26,7 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   const currentSize = 2; // толщина линии
   const canvasSize = 150; // поле
   let neuronSum = 0; // сумма нейрона
-  let sigmoidRes = 0; // ответ сигмоиды
+  let answer;
 
   // Кнопки
   const correct_cross = document.getElementById('correct_cross');
@@ -68,16 +68,6 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
   initBtn.addEventListener('click', initWeight);
   weightMap.addEventListener('click', buildMap);
 
-  // Вычисление сигмоиды
-  function sigmoid(sum) {
-    return 1 / (1 + Math.exp(-sum));
-  }
-
-  // Производная сигмоиды
-  function sigmoid_derivative(sigmoid) {
-    return sigmoid * (1 - sigmoid);
-  }
-
   // Угадать
   function PredictFunc(auto) {
     const data = ctx.getImageData(0, 0, canvasSize, canvasSize);
@@ -97,17 +87,13 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     console.log(res);
     neuronSum = Number(res);
 
-    // if (neuronSum >= 0) {
-    //   !auto && alert('Это крестик');
-    //   answer = 1;
-    // } else {
-    //   !auto && alert('Это круг');
-    //   answer = 0;
-    // }
-
-    sigmoidRes = sigmoid(neuronSum);
-
-    !auto && alert(`Это крест на ${(sigmoidRes * 100).toFixed(2)}%`);
+    if (neuronSum >= 0) {
+      !auto && alert('Это крестик');
+      answer = 1;
+    } else {
+      !auto && alert('Это круг');
+      answer = 0;
+    }
 
     __unpin(pixelArr);
     __unpin(vectors);
@@ -120,12 +106,8 @@ loader.instantiate(fetch('./build/optimized.wasm')).then(({ exports }) => {
     const weightsArr = __pin(__newArray(Float64Array_ID, weights));
     const vectorsArr = __pin(__newArray(Int32Array_ID, pixels));
 
-    let sigmoidDeriv = sigmoid_derivative(sigmoidRes);
-
     const newWeights = __getArray(
-      __pin(
-        Correct(weightsArr, vectorsArr, neuronSum, 0.05, cross, sigmoidDeriv)
-      )
+      __pin(Correct(weightsArr, vectorsArr, neuronSum, 0.05, cross))
     );
     weights = newWeights;
 
